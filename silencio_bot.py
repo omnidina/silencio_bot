@@ -13,28 +13,16 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
-def start(bot, update):
-    """Send a message when the command /start is issued."""
-    update.message.reply_text("Say no more. I'm on it!")
-
-
-def help(bot, update):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text("God help those who help themselves.")
-
-
 def delete_message(bot, update):
     """Delete the user's message which is sent more than one time per hour."""
     user_id = update.message.from_user.id
     if user_id not in users_countdown.keys():
-        users_countdown[user_id] = 'Blocked'
         timer = Timer(3600, stop_timer_for_user, [user_id])
+        users_countdown[user_id] = timer
         timer.start()
     else:
         bot.send_message(update.message.chat_id,
-                         f'Too many voice messages. Try later, {update.message.from_user.username}')
+                         f'{update.message.from_user.username}, your limit is exceeded. Try in {timer} minute(s)')
         update.message.delete()
 
 
@@ -54,10 +42,6 @@ def main():
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
-
-    # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
 
     # on  non-command - e.g delete message in Telegram
     dp.add_handler(MessageHandler(Filters.voice, delete_message))
