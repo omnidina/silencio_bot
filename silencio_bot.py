@@ -22,7 +22,7 @@ def delete_message(bot, update):
         timer.start()
     else:
         bot.send_message(update.message.chat_id,
-                         f'{update.message.from_user.username}, your limit is exceeded. Try in {timer} minute(s)')
+                         f'{update.message.from_user.username}, your limit is exceeded. Try in {users_countdown[user_id]} minute(s)')
         update.message.delete()
 
 
