@@ -3,6 +3,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from threading import Timer
 import logging
+import datetime as dt
 
 users_countdown = {}
 
@@ -17,12 +18,12 @@ def delete_message(bot, update):
     """Delete the user's message which is sent more than one time per hour."""
     user_id = update.message.from_user.id
     if user_id not in users_countdown.keys():
-        timer = Timer(3600, stop_timer_for_user, [user_id])
-        users_countdown[user_id] = timer
-        timer.start()
+        Timer(3600, stop_timer_for_user, [user_id]).start()
+        unlock_time = (dt.datetime.now() + dt.timedelta(seconds=3600)).time().replace(microsecond=0)
+        users_countdown[user_id] = unlock_time
     else:
         bot.send_message(update.message.chat_id,
-                         f"{update.message.from_user.username}, your limit is exceeded. Try in {users_countdown[user_id]//60} minute(s)")
+                         f"{update.message.from_user.username}, your limit is exceeded. You will be unlocked at {users_countdown[user_id]}.")
         update.message.delete()
 
 
